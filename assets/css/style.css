@@ -1,11 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    /* background: #262626; */
-    /* background: white; */
-    /* background-image: url("../images/mario_world_background.png");  */
-    /* background: url("../images/petranaki-arena.jpg") no-repeat center center;  */
-    /* background-color:rgba(0, 0, 0, 0.5); */
+    background: rgb(190, 237, 255);
     -webkit-background-size: 100% 100%;
     -moz-background-size: 100% 100%;
     -o-background-size: 100% 100%;
@@ -15,11 +11,16 @@ body {
 #chat-area {
   max-width: 800px;
   height: 200px;
+  background-color: white;
   overflow-y: scroll;
 }
 
 #chat-area p {
   margin: 0;
+}
+
+.card{
+  opacity: .8;
 }
 
 /* Mario Brother's Font */

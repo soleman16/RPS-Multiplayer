@@ -73,7 +73,7 @@ let rpsGame = {
     },
     {
         name: "scissors",
-        image: "assets/images/scissors_mario.png"
+        image: "assets/images/scissors_mario2.png"
     }],
     renderDisplayMessage: function(){
         let displayMessageElement = $("#displayMessage");
@@ -213,25 +213,29 @@ let rpsGame = {
             }
         }
 
-        $(messageSectionSelector).detach();
+        if(text !== ""){
 
-        let messageSectionDiv = $("<div>", {
-            id: "message-section"
-        })
-        
-        let messageText = $("<h1>", {
-            class: "flash",
-            text: text
-        })
-        
-        $(messageSectionDiv).append(messageText);
-        $(rpsGame.informationSectionSelector).append(messageSectionDiv);
+            $(messageSectionSelector).detach();
 
-        if(displayResults){
-            setTimeout(function(){
-                $(messageSectionSelector).hide();
-                rpsGame.resetPlayerChoice();
-             }, 3000);
+            let messageSectionDiv = $("<div>", {
+                id: "message-section"
+            })
+            
+            let messageText = $("<h1>", {
+                class: "flash",
+                text: text
+            })
+            
+            $(messageSectionDiv).append(messageText);
+            $(rpsGame.informationSectionSelector).append(messageSectionDiv);
+    
+            if(displayResults){
+                setTimeout(function(){
+                    $(messageSectionSelector).hide();
+                    rpsGame.resetPlayerChoice();
+                 }, 3000);
+            }
+
         }
     },
     shouldDisplayLoader: function(){

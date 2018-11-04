@@ -12,6 +12,16 @@ body {
     background-size: 100% 100%;
 }
 
+#chat-area {
+  max-width: 800px;
+  height: 200px;
+  overflow-y: scroll;
+}
+
+#chat-area p {
+  margin: 0;
+}
+
 /* Mario Brother's Font */
 
 @font-face {
@@ -28,7 +38,7 @@ ul {
 ul li {
     font-family: 'Super Mario';
     list-style: none;
-    font-size: 5em;
+    font-size: 4em;
 }
 
 .sub-title {

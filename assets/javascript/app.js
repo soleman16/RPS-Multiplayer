@@ -14,6 +14,7 @@ firebase.initializeApp(config);
 let database = firebase.database();
 let playersRef = database.ref("players");
 let restartGameRef = database.ref("restartGame");
+var chatRoomRef = database.ref("chat");
 
 let marioWorld = {
     avatars: [{
@@ -68,7 +69,7 @@ let rpsGame = {
     },
     {
         name: "paper",
-        image: "assets/images/paper_mario.jpg"
+        image: "assets/images/paper_mario2.png"
     },
     {
         name: "scissors",
@@ -269,6 +270,8 @@ let rpsGame = {
         let results = "";
         let player1Choice = rpsGame.player1.choice;
         let player2Choice = rpsGame.player2.choice;
+        let player1Name = rpsGame.player1.name;
+        let player2Name = rpsGame.player2.name;
 
         // player1 win scenarios
         if ((player1Choice === 'paper' && player2Choice == 'rock') || 
@@ -277,7 +280,7 @@ let rpsGame = {
 
             rpsGame.player1.wins +=1;
             rpsGame.player2.loses +=1;
-            results = "Player 1 wins! " + player1Choice + " beats " + player2Choice;
+            results = player1Name + " wins! " + player1Choice + " beats " + player2Choice;
         }
         // player1 loss scenarios
         else if ((player1Choice === 'rock' && player2Choice == 'paper') || 
@@ -286,7 +289,7 @@ let rpsGame = {
 
                 rpsGame.player1.loses +=1;
                 rpsGame.player2.wins +=1;
-                results = "Player 2 wins! " + player2Choice + " beats " + player1Choice;
+                results = player2Name + " wins! " + player2Choice + " beats " + player1Choice;
         }
         // tie scenarios
         else{
@@ -402,7 +405,37 @@ let rpsGame = {
         }
         else{
             rpsGame.player2 = player;
-        }     
+        } 
+        
+    }, 
+    renderChatSection: function(){
+        let chatSectionSelector = "#chat-section";
+        if(rpsGame.isPlayer1 && rpsGame.player1){
+            rpsGame.showSection(chatSectionSelector);
+        }
+        else if(!rpsGame.isPlayer1 && rpsGame.player2){
+            rpsGame.showSection(chatSectionSelector);
+        }
+    },
+    saveChatInput: function(){
+      
+        let message = $("#chat-input").val();
+        let name = "";
+
+        if(rpsGame.isPlayer1 && rpsGame.player1){
+            name = rpsGame.player1.name;
+        }
+        else if(!rpsGame.isPlayer1 && rpsGame.player2){
+            name = rpsGame.player2.name;
+        }
+    
+        chatRoomRef.push({
+            name: name,
+            message: message,
+            time: firebase.database.ServerValue.TIMESTAMP
+        });
+    
+        $("#chat-input").val("");
     }
 };
 
@@ -417,6 +450,8 @@ $( document ).ready(function() {
         }
 
         rpsGame.renderGameSection();
+
+        rpsGame.renderChatSection();
         
         }, function (errorObject) {
                 console.log("The read failed: " + errorObject.code);
@@ -451,6 +486,44 @@ $( document ).ready(function() {
         rpsGame.renderGameSection();
     }
 
+    $("#chat-submit").click(function() {
+
+        event.preventDefault();
+
+        if ($("#chat-input").val() !== "") {
+      
+            rpsGame.saveChatInput();
+        }
+
+      });
+
+      $("#chat-input").keypress(function(e) {
+
+        if (e.which === 13 && $("#chat-input").val() !== "") {
+            rpsGame.saveChatInput();
+        }
+      });
+
+    chatRoomRef.orderByChild("time").on("child_added", function(snapshot) {
+
+        let chatAreaSelector = "#chat-area";
+
+        let messageTextElement = $("<p>", {
+            class: "m-1"
+        });
+
+        console.log(snapshot.val().name, snapshot.val().message);
+
+        let spanElement = $("<span>", {
+            text: snapshot.val().name + ": " + snapshot.val().message
+        })
+
+        messageTextElement.append(spanElement);
+        $(chatAreaSelector).append(messageTextElement);
+
+        $(chatAreaSelector).scrollTop($(chatAreaSelector)[0].scrollHeight);
+    });
+
     $(document).on("click", ".avatar", function() {
         let value = $(this).attr("data-avatar-name");
         let selectedAvatar = marioWorld.findAvatarByProperty("name", value);
@@ -464,6 +537,9 @@ $( document ).ready(function() {
             rpsGame.player1.ties = 0;
             rpsGame.player1.choice = "";
             playersRef.child(rpsGame.player1.name).set(rpsGame.player1)
+            // On disconnect remove this user's player object
+            database.ref("players/" + rpsGame.player1.name).onDisconnect().remove();
+
         }
         else{
             rpsGame.player2 = selectedAvatar;
@@ -473,11 +549,18 @@ $( document ).ready(function() {
             rpsGame.player2.ties = 0;
             rpsGame.player2.choice = "";
             playersRef.child(rpsGame.player2.name).set(rpsGame.player2)
+            // On disconnect remove this user's player object
+            database.ref("players/" + rpsGame.player2.name).onDisconnect().remove();
+
+            if(!rpsGame.player1 && !rpsGame.player2){
+                chatRoomRef.onDisconnect().remove();
+            }
         }
 
         restartGameRef.set(rpsGame.restartGame);
         
         rpsGame.renderDisplayMessage();
+
         rpsGame.renderGameSection();
 
         var audio = new Audio("assets/sounds/mario.wav");

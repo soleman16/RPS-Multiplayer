@@ -19,8 +19,8 @@ body {
   margin: 0;
 }
 
-.card{
-  opacity: .8;
+.card, .input-form{
+  opacity: .9;
 }
 
 /* Mario Brother's Font */

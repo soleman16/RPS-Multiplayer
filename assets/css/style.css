@@ -1,0 +1,95 @@
+body {
+    margin: 0;
+    padding: 0;
+    /* background: #262626; */
+    /* background: white; */
+    /* background-image: url("../images/mario_world_background.png");  */
+    /* background: url("../images/petranaki-arena.jpg") no-repeat center center;  */
+    /* background-color:rgba(0, 0, 0, 0.5); */
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
+}
+
+/* Mario Brother's Font */
+
+@font-face {
+    font-family: "Super Mario";
+    src: url("../fonts/SuperMario256.ttf");
+}
+
+ul { 
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+ul li {
+    font-family: 'Super Mario';
+    list-style: none;
+    font-size: 5em;
+}
+
+.sub-title {
+    font-size: 10px;
+}
+
+/* CSS Spinner */
+
+.loader,
+.loader:after {
+  border-radius: 50%;
+  width: 10em;
+  height: 10em;
+}
+.loader {
+  margin: 60px auto;
+  font-size: 10px;
+  position: relative;
+  text-indent: -9999em;
+  border-top: 1.1em solid rgb(79, 170, 79);
+  border-right: 1.1em solid rgb(142, 196, 241);
+  border-bottom: 1.1em solid rgba(235, 62, 62, 0.945);
+  border-left: 1.1em solid rgb(230, 209, 20);
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: load8 1.1s infinite linear;
+  animation: load8 1.1s infinite linear;
+}
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+/* Flashing Text */
+.flash {
+    animation-name: flash;
+     animation-duration: 0.2s;
+     animation-timing-function: linear;
+     animation-iteration-count: infinite;
+     animation-direction: alternate;
+     animation-play-state: running;
+ }
+ 
+ @keyframes flash {
+     from {color: rgb(79, 170, 79)}
+     to {color: rgba(235, 62, 62, 0.945)}
+ }

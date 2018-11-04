@@ -469,10 +469,19 @@ $( document ).ready(function() {
                 console.log("The read failed: " + errorObject.code);
     });
 
+    playersRef.on("child_removed", function(snapshot) {    
+
+        console.log(snapshot.numChildren())
+        if (snapshot.numChildren() === 0){
+            database.ref().remove();
+        }
+        
+        }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+    });
+
     restartGameRef.on("value", function(snapshot) {    
 
-        console.log(snapshot.val());
-        
         rpsGame.restartGame = snapshot.val();
 
         rpsGame.renderGameSection();
@@ -512,8 +521,6 @@ $( document ).ready(function() {
             class: "m-1"
         });
 
-        console.log(snapshot.val().name, snapshot.val().message);
-
         let spanElement = $("<span>", {
             text: snapshot.val().name + ": " + snapshot.val().message
         })
@@ -551,10 +558,6 @@ $( document ).ready(function() {
             playersRef.child(rpsGame.player2.name).set(rpsGame.player2)
             // On disconnect remove this user's player object
             database.ref("players/" + rpsGame.player2.name).onDisconnect().remove();
-
-            if(!rpsGame.player1 && !rpsGame.player2){
-                chatRoomRef.onDisconnect().remove();
-            }
         }
 
         restartGameRef.set(rpsGame.restartGame);

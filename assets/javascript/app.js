@@ -74,6 +74,15 @@ let rpsGame = {
         name: "scissors",
         image: "assets/images/scissors_mario.png"
     }],
+    renderDisplayMessage: function(){
+        let displayMessageElement = $("#displayMessage");
+        if(rpsGame.isPlayer1){
+            displayMessageElement.text("Welcome " + rpsGame.player1.name + "! You are Player 1...")
+        }
+        else if(rpsGame.player2){
+            displayMessageElement.text("Welcome " + rpsGame.player2.name + "! You are Player 2...")
+        }
+    },
     renderGameSection: function(){      
         if(!rpsGame.restartGame){
             rpsGame.renderPlayers();
@@ -92,16 +101,16 @@ let rpsGame = {
         $(player2SectionSelector).empty();
 
         if(rpsGame.player1){
-            rpsGame.createAvatarCard(rpsGame.player1.name, rpsGame.player1.image, player1SectionSelector);
+            rpsGame.createAvatarCard(rpsGame.player1, player1SectionSelector);
         }
         else{
-            rpsGame.createAvatarCard("Player 1", imageUri, player1SectionSelector);
+            rpsGame.createAvatarCard({name: "Player 1", image: imageUri}, player1SectionSelector);
         }
         if(rpsGame.player2){
-            rpsGame.createAvatarCard(rpsGame.player2.name, rpsGame.player2.image, player2SectionSelector);
+            rpsGame.createAvatarCard(rpsGame.player2, player2SectionSelector);
         }
         else{
-            rpsGame.createAvatarCard("Player 2", imageUri, player2SectionSelector);
+            rpsGame.createAvatarCard({name: "Player 2", image: imageUri}, player2SectionSelector);
         }
     },
     shouldDisplayWeapons: function(){
@@ -164,7 +173,7 @@ let rpsGame = {
         else {
             for(let index in marioWorld.avatars){
                 let currentAvatar = marioWorld.avatars[index];
-                rpsGame.createAvatarCard(currentAvatar.name, currentAvatar.image, avatarSectionSelector, "avatar");
+                rpsGame.createAvatarCard(currentAvatar, avatarSectionSelector, "avatar");
             }
     
             rpsGame.showSection(avatarSectionSelector);
@@ -182,10 +191,10 @@ let rpsGame = {
                 displayResults = true;
             }
             else if (rpsGame.isPlayer1 && rpsGame.weaponsChosen(rpsGame.player1)){
-                text = "Waiting on Player 2 to shoot";
+                text = "Waiting on " + rpsGame.player2.name + " to shoot";
             } 
             else if (!rpsGame.isPlayer1 && rpsGame.weaponsChosen(rpsGame.player2)){
-                text = "Waiting on Player 1 to shoot";
+                text = "Waiting on " + rpsGame.player1.name + " to shoot";
             } 
             else{
                 text = "1-2-3 shoot!";
@@ -291,32 +300,57 @@ let rpsGame = {
         database.ref("players/" + rpsGame.player1.name).update(rpsGame.player1);
         database.ref("players/" +rpsGame.player2.name).update(rpsGame.player2);
  
-        return results;
+        return results.toUpperCase();
     },
-    createAvatarCard: function(name, imageUri, htmlSelector, additionalClasses){
+    createAvatarCard: function(player, htmlSelector, additionalClasses){
 
         let div = $(htmlSelector);
     
         let card = $("<div>" , {
             class: "card border-secondary mt-5 mx-5 mb-1 d-inline-block p-2 " + additionalClasses,
-            style: "max-width: 250px; height: 275px",
-            "data-avatar-name": name
+            style: "max-width: 250px; height: 325px",
+            "data-avatar-name": player.name
         });
         let cardHeader = $("<div>" , {
             class: "card-header text-center",
-            text: name
+            text: player.name
         });
         let cardBody = $("<div>" , {
             class: "card-body text-secondary p-2"
         });
         let cardImage = $("<img>", {
             class: "img-responsive mt-3",
-            src: imageUri,
+            src: player.image,
             style: "width: 125px; height: 150px",
         })
         let cardFooter = $("<div>", {
-            class: "card-footer bg-transparent border-secondary text-center"
+            class: "card-footer bg-transparent border-secondary text-left text-muted p-1 b-0 m-0",
         })
+
+        if(player.wins != undefined && player.loses != undefined && player.ties != undefined){
+
+            if(rpsGame.isPlayer1 && player.playerId === 1){
+                card.addClass("border-warning");
+            }
+            else if(!rpsGame.isPlayer1 && player.playerId === 2){
+                card.addClass("border-warning");
+            }
+            let winsElement = $("<p>", {
+                class: "m-0",
+                text: "Wins: " + player.wins
+            })
+            let loseslement = $("<p>", {
+                class: "m-0",
+                text: "Loses: " + player.loses
+            })
+            let tiesElement = $("<p>", {
+                class: "m-0",
+                text: "Ties: " + player.ties
+            })
+            cardFooter.append(winsElement, loseslement, tiesElement);
+        }
+
+        
         card.append(cardHeader, cardImage, cardBody, cardFooter);
         div.append(card);
     },
@@ -443,6 +477,7 @@ $( document ).ready(function() {
 
         restartGameRef.set(rpsGame.restartGame);
         
+        rpsGame.renderDisplayMessage();
         rpsGame.renderGameSection();
 
         var audio = new Audio("assets/sounds/mario.wav");
